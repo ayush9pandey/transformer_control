@@ -1,5 +1,4 @@
 import math
-
 import torch
 
 
@@ -9,6 +8,56 @@ def squared_error(ys_pred, ys):
 
 def mean_squared_error(ys_pred, ys):
     return (ys - ys_pred).square().mean()
+
+
+def mean_squared_error_excluded(ys_pred, ys):
+    ys_pred = ys_pred[:, 1:]
+    ys = ys[:, 1:]
+    return (ys - ys_pred).square().mean()
+
+
+def log_mean_squared_error_excluded(ys_pred, ys, epsilon=1e-8):
+    ys_pred = ys_pred[:, 1:]
+    ys = ys[:, 1:]
+
+    log_pred = torch.log(ys_pred + epsilon)
+    log_true = torch.log(ys + epsilon)
+
+    return (log_pred - log_true).square().mean()
+
+def mean_squared_error_relative_weighted_excluded(ys_pred, ys):
+    ys_pred = ys_pred[:, 1:]
+    ys = ys[:, 1:]
+
+    relative_errors = ((ys - ys_pred).abs() / ys.abs().clamp(min=1e-8))  
+    weights = 1 + relative_errors  
+    
+    weighted_mse = ((ys - ys_pred).square() * weights).mean()
+    
+    return weighted_mse
+
+
+def weighted_mse_dynamic_excluded(ys_pred, ys_true, base_weight=10, increment=10, small_value_threshold=1e-3, eps=1e-6):
+    ys_pred = ys_pred[:, 1:]
+    ys_true = ys_true[:, 1:]
+
+    squared_error = (ys_pred - ys_true).square()
+
+    small_value_threshold_tensor = torch.tensor(
+        small_value_threshold, dtype=ys_true.dtype, device=ys_true.device
+    )
+    import ipdb
+    ipdb.set_trace()
+    abs_ys_true = ys_true.abs() + eps 
+    weights = torch.where(
+        abs_ys_true < small_value_threshold_tensor,  
+        base_weight + increment * (-torch.log10(abs_ys_true) - torch.log10(small_value_threshold_tensor)),
+        torch.tensor(1.0, dtype=ys_true.dtype, device=ys_true.device) 
+    )
+
+    weighted_mse = (squared_error * weights).mean()
+
+    return weighted_mse
 
 
 '''mean_squared_logarithmic_error'''
@@ -265,26 +314,6 @@ def mean_squared_error(ys_pred, ys):
 #     return hybrid_loss
 
 
-"""weighted_mse_dynamic"""
-# def mean_squared_error(ys_pred, ys_true, base_weight=10, increment=10, small_value_threshold=1e-3, eps=1e-6):
-
-#     squared_error = (ys_pred - ys_true).square()
-
-#     small_value_threshold_tensor = torch.tensor(
-#         small_value_threshold, dtype=ys_true.dtype, device=ys_true.device
-#     )
-#     import ipdb
-#     ipdb.set_trace()
-#     abs_ys_true = ys_true.abs() + eps 
-#     weights = torch.where(
-#         abs_ys_true < small_value_threshold_tensor,  
-#         base_weight + increment * (-torch.log10(abs_ys_true) - torch.log10(small_value_threshold_tensor)),
-#         torch.tensor(1.0, dtype=ys_true.dtype, device=ys_true.device) 
-#     )
-
-#     weighted_mse = (squared_error * weights).mean()
-
-#     return weighted_mse
 
 
 """log_cosh_with_fallback """
