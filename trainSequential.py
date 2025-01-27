@@ -301,10 +301,9 @@ def train(model, args):
 
             print(f"Chunk {chunk_idx + 1}/{num_chunks} finished. unloading dataset from memory...")
             del dataset
+            torch.cuda.empty_cache()
             gc.collect()
             chunk_pbar.update(1)
-
-
 
 def main(args):
     if args.test_run:
@@ -328,8 +327,6 @@ def main(args):
     model.train()
 
     train(model, args)
-
-
 
 if __name__ == "__main__":
     parser = QuinineArgumentParser(schema=schema)
