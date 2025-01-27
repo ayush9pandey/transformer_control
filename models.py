@@ -113,31 +113,26 @@ class TransformerModel(nn.Module):
         zs = zs.view(bsize, 2 * points, dim)
         return zs
 
-    def forward(self, xs, ys=None, inds=None, rem = "no"):
+    def forward(self, xs, ys=None, inds=None, inf="no"):
 
-        if ys is not None:
-            if inds is None:
-                inds = torch.arange(ys.shape[1])
-            else:
-                inds = torch.tensor(inds)
-                if max(inds) >= ys.shape[1] or min(inds) < 0:
-                    raise ValueError("inds contain indices where xs and ys are not defined")
-
-            
-            zs = self._combine(xs, ys)
-           
-            if rem == "yes":
-                zs = zs[:, :-1, :]  
-        else:
-            zs = xs  
-            inds = torch.arange(xs.shape[1])  
+        if inf == "yes":
+            xs_b = xs.unsqueeze(0)  
+            ys_b = ys.unsqueeze(0)
+            if xs_b.shape[1] == ys_b.shape[1] + 1:
+                padding = torch.zeros((ys_b.shape[0], 1), device=ys_b.device)
+                ys_b = torch.cat((ys_b, padding), dim=1)
+            zs = self._combine(xs_b, ys_b)
+            embeds = self._read_in(zs)
+            output = self._backbone(inputs_embeds=embeds).last_hidden_state
+            prediction = self._read_out(output)
+            return prediction
         
-        embeds = self._read_in(zs)
 
+        zs = self._combine(xs, ys)
+        embeds = self._read_in(zs)
         output = self._backbone(inputs_embeds=embeds).last_hidden_state
         prediction = self._read_out(output)
- 
-        print("prediction -----",prediction[0])
+        
         if ys is not None:
             return prediction[:, ::2, 0]  
 
