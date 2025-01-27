@@ -40,10 +40,10 @@ pickle_folder: "picklefolder"  # Subfolder of dataset_filesfolder that will have
 dataset_logger_textfile: "dataset_logger.txt" # Used in getData2.py for logging dataset information. Located in dataset_filesfolder
 
 
-out_dir: ../models/test #Where to store model checkpoints
+out_dir: ./models/test #Where to store model checkpoints
 model_logger_textfile: "testing.txt"   #Name of txt file to save training info. Located it out_dir
 test_run: False              # For debugging, this will not save checkpoints or log to wandb
-use_chunk: 1                 # How you want to split dataset into chunks. 1 means load everything
+use_chunk: 50                 # How you want to split dataset into chunks. 1 means load everything
 loss: "mean_squared_error"   #Specify which loss to use in the tasks.py file
 
 
