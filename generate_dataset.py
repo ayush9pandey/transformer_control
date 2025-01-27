@@ -60,7 +60,7 @@ def get_valid_masses_and_lengths( dt=0.01, mean=3, variance=1, lowerbound=1, upp
         reseed_all(seed[0])
 
 
-def sample_bounded_gaussian(mean, stddev, lower_bound, upper_bound):
+def sample_bounded_gaussian(mean=3, stddev=1, lower_bound=1, upper_bound=5):
     """
     Samples a value from a Gaussian distribution within specified bounds.
 
@@ -195,6 +195,4 @@ if __name__ == "__main__":
         yaml.dump(args.__dict__, yaml_file, default_flow_style=False)
 
     main(args)
-
-
 
