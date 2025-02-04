@@ -315,7 +315,7 @@ def main(args):
         wandb.init(
             dir=args.out_dir,
             project=args.wandb.project,
-            entity="afrias5",
+            entity=args.wandb.entity,
             config=args.__dict__,
             notes=args.wandb.notes,
             name=args.wandb.name,
